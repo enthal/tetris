@@ -11,11 +11,14 @@ const shapes = [
   [[0,0],[1,0],
    [1,0],[1,1],],
 ];
+
+const make_piece = (...a) =>
+  _.zipObject(_.split('shapeI orientation x y', ' '), a);
 const pieces = [
-  {shape: shapes[0], orientation: 0, x:5, y:2},
-  {shape: shapes[0], orientation: 1, x:5, y:3},
-  {shape: shapes[1], orientation: 0, x:1, y:7},
-  {shape: shapes[1], orientation: 0, x:7, y:9},
+  make_piece(0,0,5,2),
+  make_piece(0,1,2,3),
+  make_piece(1,0,1,7),
+  make_piece(1,1,7,9),
 ];
 let livePiece = null;
 
@@ -25,9 +28,7 @@ const render = () => {
   }
   for (let y=0; y<20; y++) {
     for (let x=0; x<10; x++) {
-      for (const piece of pieces) {
-        write(x==piece.x && y==piece.y ? '•' : ' ');
-      }
+      write(_.some(pieces, (piece) => x==piece.x && y==piece.y) ? '•' : '·');
     }
     write('\n');
   }
