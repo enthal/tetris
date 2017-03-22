@@ -13,7 +13,7 @@ const shapes = [
 ];
 
 const make_piece = (...a) =>
-  _.zipObject(_.split('shapeI orientation x y', ' '), a);
+  _.zipObject(_.split('shapeI orientation x y', / +/), a);
 const pieces = [
   make_piece(0,0,5,2),
   make_piece(0,1,2,3),
@@ -22,17 +22,26 @@ const pieces = [
 ];
 let livePiece = null;
 
+const overBoard = (cellF, rowEndF) => {
+  for (let y=0; y<20; y++) {
+    for (let x=0; x<10; x++) {
+      cellF(x,y);
+    }
+    if (rowEndF) rowEndF(y);
+  }
+}
+
 const render = () => {
   for (const piece of pieces) {
     log(piece);
   }
-  for (let y=0; y<20; y++) {
-    for (let x=0; x<10; x++) {
+  overBoard(
+    (x,y) => {
       piece = _.find(pieces, (piece) => x==piece.x && y==piece.y);
       write(piece ? ''+piece.shapeI : '·');
-    }
-    write('\n');
-  }
+    },
+    () => write('\n')
+  );
 }
 
 render();
