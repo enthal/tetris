@@ -28,7 +28,8 @@ const render = () => {
   }
   for (let y=0; y<20; y++) {
     for (let x=0; x<10; x++) {
-      write(_.some(pieces, (piece) => x==piece.x && y==piece.y) ? '•' : '·');
+      piece = _.find(pieces, (piece) => x==piece.x && y==piece.y);
+      write(piece ? ''+piece.shapeI : '·');
     }
     write('\n');
   }
