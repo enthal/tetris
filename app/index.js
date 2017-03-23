@@ -12,19 +12,22 @@ const pieces = [
   tetris.make_piece(6,0,1,18),
 ];
 
+
+const view = document.querySelector("pre");
+
+
 const render = () => {
-  for (const piece of pieces) {
-    log(piece);
-  }
-  log( _.times(20, (y) =>
+  view.textContent = _.times(20, (y) =>
     _.times(10, (x) => {
       const piece = _.find(pieces, (piece) => tetris.isPieceHere(piece, x,y));
       return piece ? ''+piece.shapeI : '·';
     }).join('')
-  ).join('\n') );
+  ).join('\n');
 };
 
-_.times(4, (i) => {
-  for (piece of pieces) piece.orientation = i;
-  render();
-});
+setInterval(
+  () => {
+    for (piece of pieces) piece.orientation += 1;
+    render();
+  },
+  1000 );
