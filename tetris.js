@@ -1,10 +1,8 @@
 // tetris
 
-const log = console.log
-const write = (...a) => process.stdout.write(...a)
 const _=require('lodash');
-// const grid = _.times(20,()=>_.times(10,()=>null));
-// console.log(grid);
+
+const log = console.log
 
 const stringedShapes = [
   ['xxxx'],
@@ -42,33 +40,23 @@ const pieces = [
 ];
 let livePiece = null;
 
-const overBoard = (cellF, rowEndF) => {
-  for (let y=0; y<20; y++) {
-    for (let x=0; x<20; x++) {
-      cellF(x,y);
-    }
-    if (rowEndF) rowEndF(y);
-  }
-}
 const isPieceHere = (piece, gx,gy) =>
   _.some(shapes[piece.shapeI], ([x,y]) => {
     [x,y] = [[x,y],[-y,x],[-x,-y],[y,-x]] [piece.orientation % 4];
     return gx == piece.x+x && gy == piece.y+y;
   });
 
-
 const render = () => {
   for (const piece of pieces) {
     log(piece);
   }
-  overBoard(
-    (x,y) => {
-      piece = _.find(pieces, (piece) => isPieceHere(piece, x,y));
-      write(piece ? ''+piece.shapeI : '·');
-    },
-    (y) => write(` ${y}\n`)
-  );
-}
+  log( _.times(20, (y) =>
+    _.times(10, (x) => {
+      const piece = _.find(pieces, (piece) => isPieceHere(piece, x,y));
+      return piece ? ''+piece.shapeI : '·';
+    }).join('')
+  ).join('\n') );
+};
 
 _.times(4, (i) => {
   for (piece of pieces) piece.orientation = i;
