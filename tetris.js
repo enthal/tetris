@@ -33,28 +33,36 @@ const make_piece = (...a) =>
   _.zipObject(_.split('shapeI orientation x y', / +/), a);
 const pieces = [
   make_piece(0,0,5,2),
-  make_piece(0,1,6,4),
   make_piece(1,0,1,5),
-  make_piece(1,1,7,9),
   make_piece(2,0,1,8),
   make_piece(3,0,5,12),
   make_piece(4,0,1,14),
   make_piece(5,0,6,16),
   make_piece(6,0,1,18),
+  make_piece(0,1,15,2),
+  make_piece(1,1,11,5),
+  make_piece(2,1,11,8),
+  make_piece(3,1,15,12),
+  make_piece(4,1,11,14),
+  make_piece(5,1,16,16),
+  make_piece(6,1,11,17),
 ];
 let livePiece = null;
 
 const overBoard = (cellF, rowEndF) => {
   for (let y=0; y<20; y++) {
-    for (let x=0; x<10; x++) {
+    for (let x=0; x<20; x++) {
       cellF(x,y);
     }
     if (rowEndF) rowEndF(y);
   }
 }
 const isPieceHere = (piece, gx,gy) =>
-  _.some(shapes[piece.shapeI], ([x,y]) =>
-    gx == piece.x+x && gy == piece.y+y  );
+  _.some(shapes[piece.shapeI], ([cx,cy]) => {
+    if (piece.orientation % 4) [cy,cx]=[cx,cy];
+    // log(xy,x,y,piece.shapeI,piece.orientation);
+    return gx == piece.x+cx && gy == piece.y+cy  ;
+  });
 
 
 const render = () => {
