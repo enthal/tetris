@@ -7,7 +7,7 @@ What if we had no grid?
   - has a list of occupied cell coordinates (by x,y) at reference *orientation*
   - has presentation info (like color)
   - has a name?
-- the basic shapes: line, square, left-s, right-s, left-l, right-l
+- the basic shapes: line, square, left-s, right-s, left-l, right-l, tee
 - a **piece**
   - is of a *shape*
   - at an *orientation* (0-3)

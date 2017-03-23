@@ -6,19 +6,41 @@ const _=require('lodash');
 // const grid = _.times(20,()=>_.times(10,()=>null));
 // console.log(grid);
 
-const shapes = [
-  [[0,0],[1,0],[2,0],[3,0],],
-  [[0,0],[1,0],
-   [0,1],[1,1],],
-];
+const stringedShapes = [
+  ['xxxx'],
+  ['xx',
+   'xx'],
+  ['xx ',
+   ' xx'],
+  [' xx',
+   'xx '],
+  ['x  ',
+   'xxx'],
+  [' x ',
+   'xxx'],
+  ['  x',
+   'xxx'],
+]
+const shapes = _.map(stringedShapes, (ss)=> {
+  r = []
+  _.each(ss, (s,y) => _.each(s, (c,x) => {
+      if (c=='x') r.push([x,y]); } ) )
+  return r;
+});
+log(shapes);
 
 const make_piece = (...a) =>
   _.zipObject(_.split('shapeI orientation x y', / +/), a);
 const pieces = [
   make_piece(0,0,5,2),
-  make_piece(0,1,2,4),
-  make_piece(1,0,1,7),
+  make_piece(0,1,6,4),
+  make_piece(1,0,1,5),
   make_piece(1,1,7,9),
+  make_piece(2,0,1,8),
+  make_piece(3,0,5,12),
+  make_piece(4,0,1,14),
+  make_piece(5,0,6,16),
+  make_piece(6,0,1,18),
 ];
 let livePiece = null;
 
