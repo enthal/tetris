@@ -53,7 +53,7 @@ const overBoard = (cellF, rowEndF) => {
 const isPieceHere = (piece, gx,gy) =>
   _.some(shapes[piece.shapeI], ([x,y]) => {
     [x,y] = [[x,y],[-y,x],[-x,-y],[y,-x]] [piece.orientation % 4];
-    return gx == piece.x+x & gy == piece.y+y;
+    return gx == piece.x+x && gy == piece.y+y;
   });
 
 
