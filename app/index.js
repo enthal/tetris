@@ -12,17 +12,21 @@ const pieces = [
   tetris.make_piece(6,0,1,18),
 ];
 
-
-const view = document.querySelector("pre");
-
-
 const render = () => {
-  view.textContent = _.times(20, (y) =>
-    _.times(10, (x) => {
-      const piece = _.find(pieces, (piece) => tetris.isPieceHere(piece, x,y));
-      return piece ? ''+piece.shapeI : '·';
-    }).join('')
-  ).join('\n');
+  const svg = document.querySelector("svg");
+  const svgns = "http://www.w3.org/2000/svg";
+
+  while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+  _.each(pieces, (piece) =>
+    _.each(tetris.getPieceCellCoordinates(piece), ([x,y]) => {
+      const rect = document.createElementNS(svgns,"rect");
+      rect.setAttribute("width",1);
+      rect.setAttribute("height",1);
+      rect.setAttribute("x",x);
+      rect.setAttribute("y",y);
+      rect.setAttribute("fill",_.split("black red green blue orange yellow purple", ' ')[piece.shapeI]);
+      svg.appendChild(rect);
+    }));
 };
 
 setInterval(
