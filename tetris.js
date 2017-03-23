@@ -39,13 +39,6 @@ const pieces = [
   make_piece(4,0,1,14),
   make_piece(5,0,6,16),
   make_piece(6,0,1,18),
-  make_piece(0,1,15,2),
-  make_piece(1,1,11,5),
-  make_piece(2,1,11,8),
-  make_piece(3,1,15,12),
-  make_piece(4,1,11,14),
-  make_piece(5,1,16,16),
-  make_piece(6,1,11,17),
 ];
 let livePiece = null;
 
@@ -58,10 +51,9 @@ const overBoard = (cellF, rowEndF) => {
   }
 }
 const isPieceHere = (piece, gx,gy) =>
-  _.some(shapes[piece.shapeI], ([cx,cy]) => {
-    if (piece.orientation % 4) [cy,cx]=[cx,cy];
-    // log(xy,x,y,piece.shapeI,piece.orientation);
-    return gx == piece.x+cx && gy == piece.y+cy  ;
+  _.some(shapes[piece.shapeI], ([x,y]) => {
+    [x,y] = [[x,y],[-y,x],[-x,-y],[y,-x]] [piece.orientation % 4];
+    return gx == piece.x+x & gy == piece.y+y;
   });
 
 
@@ -74,8 +66,11 @@ const render = () => {
       piece = _.find(pieces, (piece) => isPieceHere(piece, x,y));
       write(piece ? ''+piece.shapeI : '·');
     },
-    () => write('\n')
+    (y) => write(` ${y}\n`)
   );
 }
 
-render();
+_.times(4, (i) => {
+  for (piece of pieces) piece.orientation = i;
+  render();
+});
