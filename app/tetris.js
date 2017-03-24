@@ -7,14 +7,29 @@ const log = console.log
 exports.make_piece = (...a) =>
   _.zipObject(_.split('shapeI orientation x y', / +/), a);
 
-exports.getPieceCellCoordinates = (piece) =>
-  _.map(shapes[piece.shapeI], ([x,y]) => {
+const getShapeSize = (shape) =>
+  _.reduce(
+    shape,
+    (extents, coords) => _.zipWith(
+      extents, coords, (e,c)=>_.max([e,c]) ),
+    [0,0] )
+
+
+const getPieceCellCoordinates =
+exports.getPieceCellCoordinates = (piece) => {
+  const shape = shapes[piece.shapeI];
+  let mx,my; [mx,my] = getShapeSize(shape);
+  return _.map(shape, ([x,y]) => {
+    x -= mx/2;
+    y -= my/2;
     [x,y] = [[x,y],[-y,x],[-x,-y],[y,-x]] [piece.orientation % 4];
+    x = _.floor(x + mx/2);
+    y = _.floor(y + my/2);
     return [piece.x+x, piece.y+y];
   });
-
+}
 exports.isPieceHere = (piece, gx,gy) =>
-  _.some(exports.getPieceCellCoordinates(piece), ([x,y]) =>
+  _.some(getPieceCellCoordinates(piece), ([x,y]) =>
     gx == x && gy == y );
 
 
