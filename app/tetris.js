@@ -22,12 +22,16 @@ exports.getPieceCellCoordinates = (piece) => {
   return _.map(shape, ([x,y]) => {
     x -= mx/2;
     y -= my/2;
-    [x,y] = [[x,y],[-y,x],[-x,-y],[y,-x]] [piece.orientation % 4];
+    [x,y] = rotateCoords([x,y], piece.orientation);
     x = _.floor(x + mx/2);
     y = _.floor(y + my/2);
     return [piece.x+x, piece.y+y];
   });
 }
+
+const rotateCoords = ([x,y], orientation) =>
+  [[x,y],[-y,x],[-x,-y],[y,-x]] [orientation % 4]  // clockwise, around origin
+
 exports.isPieceHere = (piece, gx,gy) =>
   _.some(getPieceCellCoordinates(piece), ([x,y]) =>
     gx == x && gy == y );
