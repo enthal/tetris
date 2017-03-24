@@ -2,6 +2,15 @@
 
 What if we had no grid?
 
+## *Up and running*
+
+Install [node](https://nodejs.org/en/download/) and [yarn](https://yarnpkg.com/lang/en/docs/install/).  Then:
+```
+yarn install
+yarn global add browserify budo
+./scripts/dev.sh
+```
+
 ## things
 - a **shape**
   - has a list of occupied cell coordinates (by x,y) at reference *orientation*
