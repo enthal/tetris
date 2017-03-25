@@ -27,23 +27,34 @@ const render = () => {
   });
 };
 
-let count=0;
-setInterval(
-  () => {
-    if (!livePiece) {
-      if (count > 10) return;
-      livePiece = tetris.makePiece(_.random(6),0,4,-1);
-      count += 1;
-      log("new livePiece", livePiece)
+let currentTimeout;
+const onTick = () => {
+  clearTimeout(currentTimeout);
+  doStep();
+  currentTimeout = setTimeout(onTick, 1000);
+};
+
+document.addEventListener('keydown', (event) => {
+  log('keydown', event.key);
+  if (event.key == 'ArrowDown') onTick();
+});
+
+const doStep = () => {
+  if (!livePiece) {
+    livePiece = tetris.makePiece(_.random(6),0,4,-1);
+    log("new livePiece", livePiece)
+    if (isLivePieceOverlapping()) {
+      log("GAME OVER");
+      deadCells.length = 0;
     }
-    livePiece.y += 1;
-    render();
-    if (isLivePieceOnBottom() || isLivePieceOverlapping([0,1])) {
-      deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
-      livePiece = null;
-    }
-  },
-  100 );
+  }
+  livePiece.y += 1;
+  render();
+  if (isLivePieceOnBottom() || isLivePieceOverlapping([0,1])) {
+    deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
+    livePiece = null;
+  }
+}
 
 const isLivePieceOnBottom = () =>
   livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20;
@@ -53,3 +64,5 @@ const isLivePieceOverlapping = (offsetCoord = [0,0]) =>
     _.some(deadCells, ([deadCoord], ignore) =>
       liveCoord[0] + offsetCoord[0] == deadCoord[0] &&
       liveCoord[1] + offsetCoord[1] == deadCoord[1] ));
+
+onTick();
