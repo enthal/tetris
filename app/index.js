@@ -29,12 +29,11 @@ const render = () => {
 
 setInterval(
   () => {
-    if (!livePiece)  livePiece = tetris.makePiece(3,0,4,-1);
+    if (!livePiece)  livePiece = tetris.makePiece(_.random(6),0,4,-1);
     livePiece.y += 1;
     render();
-    log (livePiece.y, tetris.getPieceSize(livePiece))
     if (livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20) {
       livePiece = null;
     }
   },
-  1000 );
+  100 );
