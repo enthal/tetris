@@ -38,7 +38,7 @@ setInterval(
     }
     livePiece.y += 1;
     render();
-    if (isLivePieceOnBottom() || isLivePieceLanded()) {
+    if (isLivePieceOnBottom() || isLivePieceOverlapping([0,1])) {
       deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
       livePiece = null;
     }
@@ -48,8 +48,8 @@ setInterval(
 const isLivePieceOnBottom = () =>
   livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20;
 
-const isLivePieceLanded = () =>
+const isLivePieceOverlapping = (offsetCoord = [0,0]) =>
   _.some(tetris.getPieceCellCoordinates(livePiece), (liveCoord) =>
     _.some(deadCells, ([deadCoord], ignore) =>
-      liveCoord[0] == deadCoord[0] &&
-      liveCoord[1] == deadCoord[1] - 1 ));
+      liveCoord[0] + offsetCoord[0] == deadCoord[0] &&
+      liveCoord[1] + offsetCoord[1] == deadCoord[1] ));
