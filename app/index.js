@@ -27,15 +27,29 @@ const render = () => {
   });
 };
 
+let count=0;
 setInterval(
   () => {
-    if (!livePiece)  livePiece = tetris.makePiece(_.random(6),0,4,-1);
+    if (!livePiece) {
+      if (count > 10) return;
+      livePiece = tetris.makePiece(_.random(6),0,4,-1);
+      count += 1;
+      log("new livePiece", livePiece)
+    }
     livePiece.y += 1;
     render();
-    if (livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20) {
+    if (isLivePieceOnBottom() || isLivePieceLanded()) {
       deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
-      log(deadCells);
       livePiece = null;
     }
   },
   100 );
+
+const isLivePieceOnBottom = () =>
+  livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20;
+
+const isLivePieceLanded = () =>
+  _.some(tetris.getPieceCellCoordinates(livePiece), (liveCoord) =>
+    _.some(deadCells, ([deadCoord], ignore) =>
+      liveCoord[0] == deadCoord[0] &&
+      liveCoord[1] == deadCoord[1] - 1 ));
