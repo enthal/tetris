@@ -36,33 +36,53 @@ const onTick = () => {
 
 document.addEventListener('keydown', (event) => {
   log('keydown', event.key);
-  if (event.key == 'ArrowDown') onTick();
+  if (event.key == 'ArrowDown') {
+    onTick();
+    return;
+  }
+  const maybeLivePiece = _.clone(livePiece);
+  if (event.key == 'ArrowUp') {
+    maybeLivePiece.orientation += 1;
+  }
+  if (event.key == 'ArrowLeft') {
+    maybeLivePiece.x -= 1;
+  }
+  if (event.key == 'ArrowRight') {
+    maybeLivePiece.x += 1;
+  }
+  if (!isPieceOverlapping(maybeLivePiece)) {
+    log(livePiece, maybeLivePiece)
+    livePiece = maybeLivePiece;
+  }
+  render();
 });
 
 const doStep = () => {
   if (!livePiece) {
     livePiece = tetris.makePiece(_.random(6),0,4,-1);
     log("new livePiece", livePiece)
-    if (isLivePieceOverlapping()) {
+    if (isPieceOverlapping(livePiece)) {
       log("GAME OVER");
       deadCells.length = 0;
     }
   }
   livePiece.y += 1;
   render();
-  if (isLivePieceOnBottom() || isLivePieceOverlapping([0,1])) {
+  if (isLivePieceOnBottom() || isPieceOverlapping(livePiece, [0,1])) {
+    log("landed!",tetris.getPieceSize(livePiece));
     deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
     livePiece = null;
+    doStep();
   }
 }
 
 const isLivePieceOnBottom = () =>
-  livePiece.y + tetris.getPieceSize(livePiece)[1] + 1 == 20;
+  _.some(tetris.getPieceCellCoordinates(livePiece), ([x,y]) => y == 20-1);
 
-const isLivePieceOverlapping = (offsetCoord = [0,0]) =>
-  _.some(tetris.getPieceCellCoordinates(livePiece), (liveCoord) =>
+const isPieceOverlapping = (piece, offsetCoord=[0,0]) =>
+  _.some(tetris.getPieceCellCoordinates(piece), (pieceCoord) =>
     _.some(deadCells, ([deadCoord], ignore) =>
-      liveCoord[0] + offsetCoord[0] == deadCoord[0] &&
-      liveCoord[1] + offsetCoord[1] == deadCoord[1] ));
+      pieceCoord[0] + offsetCoord[0] == deadCoord[0] &&
+      pieceCoord[1] + offsetCoord[1] == deadCoord[1] ));
 
 onTick();
