@@ -21,23 +21,26 @@ yarn global add browserify budo
   - is of a *shape*
   - at an *orientation* (0-3)
   - at a *position* (x:0-10; y:0-20; 0,0 at top left)
+- a **dead cell**
+  - is of a shape (e.g., for color)
+  - at x,y
 - a **game**
-  - has a list of *pieces*
+  - has a list of *dead cells*
   - has a *live piece*  (could be 1st/last in list?)
 
 ## events
-- on *start*:
+- on **start**:
   - add/make live piece:
     - random shape
     - x *position* near middle
-    - if *overlap*, do *end*
-- on *tick* or *down move*:
+    - if *would violate*, do *end*
+- on **tick** or **down move**:
   - move down 1
   - handle *potential landing*
-- on *lateral move* (left/right):
+- on **lateral move** (left/right):
   - unless *would violate*
   - move piece 1 left/right
-- on *rotate*:
+- on **rotate**:
   - unless *would violate*
   - increment *live piece* *orientation* 1, modulo 4
   - handle *potential landing*
@@ -45,15 +48,19 @@ yarn global add browserify budo
 ## functions
 - **would violate**: given a candidate piece whether:
   - piece *extent* would exceed *x-boundary* (0,10)
-  - piece would *overlap* another piece in the (non-live) list
+  - piece would *overlap* a *dead cell*
 - **potential landing**:
-  - if *live piece* *did land*:
-    - add it to piece list
+  - if *live piece*: *did land*:
+    - add its cells to *dead cell* list
+    - for any complete (gapless, edge-to-edge) row in *dead cell* list
+      - remove all cells in the row
+      - move all cells above the row down
+    - increment score by some function of count of lines removed
     - do *start*
 - **did land**: whether any:
-  - any cell of *live piece* is directly above (y-1) that of any other piece
-  - *live piece* is on bottom
-- **overlap**:
+  - any cell of *live piece* is any:
+    - directly above (y-1) that of any dead cell
+    - on bottom row
 
 ## presentation
 - on any change, render grid of cells:

@@ -4,7 +4,7 @@ const _ = require('lodash');
 const log = console.log
 
 
-exports.make_piece = (...a) =>
+exports.makePiece = (...a) =>
   _.zipObject(_.split('shapeI orientation x y', / +/), a);
 
 const getShapeSize = (shape) =>
@@ -14,6 +14,10 @@ const getShapeSize = (shape) =>
       extents, coords, (e,c)=>_.max([e,c]) ),
     [0,0] )
 
+exports.getPieceSize = (piece) => {
+  const size = getShapeSize(shapes[piece.shapeI]);
+  return piece.orientation % 2 ? size.reverse() : size;
+}
 
 const getPieceCellCoordinates =
 exports.getPieceCellCoordinates = (piece) => {

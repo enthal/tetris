@@ -1,0 +1,10 @@
+
+body {
+  margin: 0;
+}
+
+svg #board rect {
+  fill: none;
+  stroke: black;
+  stroke-width: 0.1%;
+}
