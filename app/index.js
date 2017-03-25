@@ -4,6 +4,8 @@ const log = console.log
 
 let livePiece;
 const deadCells = [];
+const maxX = 10;
+const maxY = 20;
 
 const render = () => {
   const svg = document.querySelector("svg #game");
@@ -50,7 +52,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key == 'ArrowRight') {
     maybeLivePiece.x += 1;
   }
-  if (!isPieceOverlapping(maybeLivePiece)) {
+  if (!isPieceOverlapping(maybeLivePiece) && !isPieceOutOfBounds(maybeLivePiece)) {
     log(livePiece, maybeLivePiece)
     livePiece = maybeLivePiece;
   }
@@ -77,12 +79,17 @@ const doStep = () => {
 }
 
 const isLivePieceOnBottom = () =>
-  _.some(tetris.getPieceCellCoordinates(livePiece), ([x,y]) => y == 20-1);
+  _.some(tetris.getPieceCellCoordinates(livePiece), ([x,y]) => y == maxY-1);
 
 const isPieceOverlapping = (piece, offsetCoord=[0,0]) =>
   _.some(tetris.getPieceCellCoordinates(piece), (pieceCoord) =>
     _.some(deadCells, ([deadCoord], ignore) =>
       pieceCoord[0] + offsetCoord[0] == deadCoord[0] &&
       pieceCoord[1] + offsetCoord[1] == deadCoord[1] ));
+
+const isPieceOutOfBounds = (piece) =>
+  _.some(tetris.getPieceCellCoordinates(piece), ([x,y]) =>
+    x < 0 || x >= maxX || y >= maxY );
+
 
 onTick();
