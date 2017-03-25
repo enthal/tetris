@@ -24,7 +24,7 @@ const render = () => {
     rect.setAttribute("height",1);
     rect.setAttribute("x",x);
     rect.setAttribute("y",y);
-    rect.setAttribute("fill",_.split("black red green blue orange yellow purple", ' ')[shapeI]);
+    rect.setAttribute("class",`shape-${shapeI}`);
     svg.appendChild(rect);
   });
 };

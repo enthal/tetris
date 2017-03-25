@@ -8,3 +8,11 @@ svg #board rect {
   stroke: black;
   stroke-width: 0.1%;
 }
+
+svg rect.shape-0 { fill: black; }
+svg rect.shape-1 { fill: red; }
+svg rect.shape-2 { fill: green; }
+svg rect.shape-3 { fill: blue; }
+svg rect.shape-4 { fill: orange; }
+svg rect.shape-5 { fill: yellow; }
+svg rect.shape-6 { fill: purple; }
