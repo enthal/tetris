@@ -68,13 +68,15 @@ const doStep = () => {
       deadCells.length = 0;
     }
   }
-  livePiece.y += 1;
-  render();
+
   if (isLivePieceOnBottom() || isPieceOverlapping(livePiece, [0,1])) {
     log("landed!",tetris.getPieceSize(livePiece));
     deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
     livePiece = null;
     doStep();
+  } else {
+    livePiece.y += 1;
+    render();
   }
 }
 
