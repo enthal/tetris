@@ -3,7 +3,7 @@ const tetris = require('./tetris');
 const log = console.log
 
 let livePiece;
-const deadCells = [];
+let deadCells = [];
 const maxX = 10;
 const maxY = 20;
 
@@ -37,7 +37,6 @@ const onTick = () => {
 };
 
 document.addEventListener('keydown', (event) => {
-  log('keydown', event.key);
   if (event.key == 'ArrowDown') {
     onTick();
     return;
@@ -53,7 +52,6 @@ document.addEventListener('keydown', (event) => {
     maybeLivePiece.x += 1;
   }
   if (!isPieceOverlapping(maybeLivePiece) && !isPieceOutOfBounds(maybeLivePiece)) {
-    log(livePiece, maybeLivePiece)
     livePiece = maybeLivePiece;
   }
   render();
@@ -65,14 +63,24 @@ const doStep = () => {
     log("new livePiece", livePiece)
     if (isPieceOverlapping(livePiece)) {
       log("GAME OVER");
-      deadCells.length = 0;
+      deadCells = [];
     }
   }
 
   if (isLivePieceOnBottom() || isPieceOverlapping(livePiece, [0,1])) {
-    log("landed!",tetris.getPieceSize(livePiece));
     deadCells.push(..._.map(tetris.getPieceCellCoordinates(livePiece), (coords)=>[coords,livePiece.shapeI]));
     livePiece = null;
+
+    const yCounts = _.countBy(deadCells, ([[x,y], __]) => y);
+    const killedYs = _.transform(yCounts,
+      (r,count,y) => { if (count==10) r.push(+y); },
+      []);
+    _.remove(deadCells, ([[ign1,y],ign2]) => _.some(killedYs, (killedY) => y == killedY));
+    _.each(killedYs, (killedY) =>
+      _.each(deadCells, (deadCell) => {
+        if (deadCell[0][1] < killedY) deadCell[0][1]++
+      }));
+
     doStep();
   } else {
     livePiece.y += 1;
@@ -83,11 +91,11 @@ const doStep = () => {
 const isLivePieceOnBottom = () =>
   _.some(tetris.getPieceCellCoordinates(livePiece), ([x,y]) => y == maxY-1);
 
-const isPieceOverlapping = (piece, offsetCoord=[0,0]) =>
-  _.some(tetris.getPieceCellCoordinates(piece), (pieceCoord) =>
-    _.some(deadCells, ([deadCoord], ignore) =>
-      pieceCoord[0] + offsetCoord[0] == deadCoord[0] &&
-      pieceCoord[1] + offsetCoord[1] == deadCoord[1] ));
+const isPieceOverlapping = (piece, offsetXY=[0,0]) =>
+  _.some(tetris.getPieceCellCoordinates(piece), (pieceXY) =>
+    _.some(deadCells, ([deadXY], ignore) =>
+      pieceXY[0] + offsetXY[0] == deadXY[0] &&
+      pieceXY[1] + offsetXY[1] == deadXY[1] ));
 
 const isPieceOutOfBounds = (piece) =>
   _.some(tetris.getPieceCellCoordinates(piece), ([x,y]) =>
