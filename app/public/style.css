@@ -1,12 +1,21 @@
 
 body {
   margin: 0;
+  background-color: gray;
 }
 
 svg #board rect {
-  fill: none;
+  fill: white;
   stroke: black;
   stroke-width: 0.1%;
+}
+
+svg rect {
+  transition: 2s;
+}
+svg rect.destroying {
+  opacity: 0;
+  transform: scale(5);
 }
 
 svg rect.shape-0 { fill: black; }
