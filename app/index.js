@@ -36,50 +36,55 @@ const makeView = (gameElem) => {
       stepDown: () => {
         if (!downAnimation) {
           downAnimation = true;
-          const startY = xy[1]
-          let start_ms;
-          const animate = (timestamp_ms) => {
-            if (!start_ms) start_ms = timestamp_ms;
-            const elapsed_s = (timestamp_ms - start_ms)/1000;
-            const y = startY + Math.pow(1+elapsed_s, 3.5) - 1;
-            cellElem.setAttribute('y', y);
-            if (y < xy[1]) window.requestAnimationFrame(animate);
-            else {
+          const startY = xy[1];
+          animate(
+            (elapsed_s) => {
+              const y = startY + Math.pow(1+elapsed_s, 3.5) - 1;
+              cellElem.setAttribute('y', y);
+              return y < xy[1];
+            }, () => {
               cellElem.setAttribute('y', xy[1]);
               downAnimation = false;
             }
-          };
-          window.requestAnimationFrame(animate);
+          );
         }
         xy[1] += 1;
       },
-      destroy: () => {  // TODO
-        cellElem.classList.add('destroying');
+      destroy: () => {
         const factor = {
           x: _.random(-2.1,2.1),
           y: _.random(-1.3,2.1),
           r: _.random(-1.1,1.1),
         };
         const duration_s = 2.0;
-        let start_ms;
-        const animate = (timestamp_ms) => {
-          if (!start_ms) start_ms = timestamp_ms;
-          const elapsed_s = (timestamp_ms - start_ms)/1000;
-          cellElem.style.opacity = 1 - elapsed_s/duration_s
-          cellElem.setAttribute('transform', `
-            translate(${factor.x * elapsed_s} ${factor.y * elapsed_s})
-            rotate(${factor.x * elapsed_s * 360} ${xy[0]+0.5} ${xy[1]+0.5})
-            `);
-          if (elapsed_s < duration_s) window.requestAnimationFrame(animate);
-          else cellElem.parentElement.removeChild(cellElem);
-        };
-        window.requestAnimationFrame(animate);
+        animate(
+          (elapsed_s) => {
+            cellElem.style.opacity = 1 - (elapsed_s / duration_s);
+            cellElem.setAttribute('transform', `
+              translate(${factor.x * elapsed_s} ${factor.y * elapsed_s})
+              rotate(${factor.x * elapsed_s * 360} ${xy[0]+0.5} ${xy[1]+0.5})
+              `);
+            return elapsed_s < duration_s;
+          }, () => {
+            cellElem.parentElement.removeChild(cellElem);
+          }
+        );
       },
       // NOTE: I'm sad the animations are in JS, but neither CSS animations on SVG transform, nor SVG animateTransform work right
     };
   };
-  deadCells.push(..._.flatten(_.map(_.range(15,20), (y)=>_.times(10, (x)=>makeCell(deadCellsGroupElem, [x,y], _.random(6))))));
+  // deadCells.push(..._.flatten(_.map(_.range(15,20), (y)=>_.times(10, (x)=>makeCell(deadCellsGroupElem, [x,y], _.random(6))))));
 
+  const animate = (onFrame, onDone) => {
+    let start_ms;
+    const doAnimate = (timestamp_ms) => {
+      if (!start_ms) start_ms = timestamp_ms;
+      const elapsed_s = (timestamp_ms - start_ms) / 1000;
+      if (onFrame(elapsed_s)) window.requestAnimationFrame(doAnimate);
+      else if (onDone) onDone(elapsed_s);
+    }
+    window.requestAnimationFrame(doAnimate);
+  };
 
   const removeAllChildren = (p) => {
     while (p.firstChild) { p.removeChild(p.firstChild); }
