@@ -19,7 +19,7 @@ const makeView = (gameElem) => {
     rect.setAttribute('x',x);
     rect.setAttribute('y',y);
     rect.setAttribute('class',`shape-${shapeI}`);
-    parentElem.appendChild(rect);
+    parentElem.insertBefore(rect, parentElem.firstChild);  // insert first so later elements are "on top" for their destruction animation
     return rect;
   }
 
@@ -29,35 +29,52 @@ const makeView = (gameElem) => {
 
   const makeCell = (parentElem, xy, shapeI) => {
     const cellElem = generateCellSvgRect(parentElem, xy, shapeI);
+    let downAnimation = false;
     return {
       getY:  () => xy[1],
       getXY: () => xy,
-      moveBy: (dxy) => {
-        xy = _.zipWith(xy, dxy, (c,dc) => c + dc);
-        cellElem.setAttribute('x', xy[0]);
-        cellElem.setAttribute('y', xy[1]);
+      stepDown: () => {
+        if (!downAnimation) {
+          log ("stepDown",xy);
+          downAnimation = true;
+          const startY = xy[1];
+          const duration_s = 1.0;
+          let start_ms;
+          const animate = (timestamp_ms) => {
+            if (!start_ms) start_ms = timestamp_ms;
+            const elapsed_s = (timestamp_ms - start_ms)/1000;
+            cellElem.setAttribute('y', startY + (xy[1]-startY)*(elapsed_s/duration_s));
+            if (elapsed_s < duration_s) window.requestAnimationFrame(animate);
+            else {
+              cellElem.setAttribute('y', xy[1]);
+              downAnimation = false;
+              log('done')
+            }
+          };
+          window.requestAnimationFrame(animate);
+        }
+        xy[1] += 1;
       },
       destroy: () => {  // TODO
         cellElem.classList.add('destroying');
-        let start_ms;
         const factor = {
           x: _.random(-2.1,2.1),
           y: _.random(-1.3,2.1),
           r: _.random(-1.1,1.1),
         };
         const duration_s = 2.0;
+        let start_ms;
         const animate = (timestamp_ms) => {
-          if (!start_ms) start_ms = timestamp_ms
+          if (!start_ms) start_ms = timestamp_ms;
           const elapsed_s = (timestamp_ms - start_ms)/1000;
           cellElem.style.opacity = 1 - elapsed_s/duration_s
           cellElem.setAttribute('transform', `
             translate(${factor.x * elapsed_s} ${factor.y * elapsed_s})
             rotate(${factor.x * elapsed_s * 360} ${xy[0]+0.5} ${xy[1]+0.5})
             `);
-
           if (elapsed_s < duration_s) window.requestAnimationFrame(animate);
           else cellElem.parentElement.removeChild(cellElem);
-        }
+        };
         window.requestAnimationFrame(animate);
       },
       // NOTE: I'm sad the animations are in JS, but neither CSS animations on SVG transform, nor SVG animateTransform work right
@@ -141,7 +158,7 @@ const doStep = () => {
 
     _.each(killedYs, (killedY) =>
       _.each(deadCells, (deadCell) => {
-        if (deadCell.getY() < killedY) deadCell.moveBy([0,1]);
+        if (deadCell.getY() < killedY) deadCell.stepDown();
       }));
 
     doStep();
