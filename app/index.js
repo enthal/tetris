@@ -32,22 +32,54 @@ const makeView = (gameElem) => {
 
   const convertToCells = (parentElem, piece) => _.map(
     tetris.getPieceCellCoordinates(piece),
-    (xy) => {
-      const elem = generateCellSvgRect(parentElem, xy, piece.shapeI);
-      return {
-        getY:  () => xy[1],
-        getXY: () => xy,
-        moveBy: (dxy) => {
-          xy = _.zipWith(xy, dxy, (c,dc) => c + dc);
-          elem.setAttribute('x', xy[0]);
-          elem.setAttribute('y', xy[1]);
-        },
-        destroy: () => {  // TODO
-          elem.setAttribute('transform', `rotate(45 ${xy[0]+0.5} ${xy[1]+0.5})`)
-          elem.classList.add('destroying');
-        },
-      };
-    })
+    (xy) => makeCell(parentElem, xy, piece.shapeI))
+
+  const makeCell = (parentElem, xy, shapeI) => {
+    const cellElem = generateCellSvgRect(parentElem, xy, shapeI);
+    return {
+      getY:  () => xy[1],
+      getXY: () => xy,
+      moveBy: (dxy) => {
+        xy = _.zipWith(xy, dxy, (c,dc) => c + dc);
+        cellElem.setAttribute('x', xy[0]);
+        cellElem.setAttribute('y', xy[1]);
+      },
+      destroy: () => {  // TODO
+        cellElem.classList.add('destroying');
+        // cellElem.setAttribute('transform', `rotate(45)`)
+        // cellElem.setAttribute('transform-origin', `90% 90%`)
+        // cellElem.setAttribute('transform', `rotate(45 ${xy[0]+0.5} ${xy[1]+0.5})`)
+        let animateTransform;
+        // animateTransform = document.createElementNS(svgns,'animateTransform');
+        // animateTransform.setAttribute('attributeName','transform');
+        // animateTransform.setAttribute('type','rotate');
+        // animateTransform.setAttribute('from',`0  ${xy[0]+0.5} ${xy[1]+0.5}`);
+        // animateTransform.setAttribute('to',  `360 ${xy[0]+0.5} ${xy[1]+0.5}`);
+        // animateTransform.setAttribute('dur',`${_.random(0.5,3)}s`);
+        // animateTransform.setAttribute('repeatCount','indefinite');
+        // cellElem.appendChild(animateTransform);
+        animateTransform = document.createElementNS(svgns,'animateTransform');
+        animateTransform.setAttribute('attributeName','transform');
+        animateTransform.setAttribute('type','scale');
+        animateTransform.setAttribute('from',`0`);
+        animateTransform.setAttribute('to',  `1.3`);
+        animateTransform.setAttribute('dur',`${_.random(3,5.5)}s`);
+        animateTransform.setAttribute('repeatCount','indefinite');
+        cellElem.appendChild(animateTransform);
+
+        // <animateTransform attributeName="transform"
+        //           attributeType="XML"
+        //           type="rotate"
+        //           from="0 60 70"
+        //           to="360 60 70"
+        //           dur="10s"
+        //           repeatCount="indefinite"/>
+
+      },
+    };
+  };
+  deadCells.push(..._.flatten(_.map(_.range(15,20), (y)=>_.times(10, (x)=>makeCell(deadCellsGroupElem, [x,y], _.random(6))))));
+
 
   const removeAllChildren = (p) => {
     while (p.firstChild) { p.removeChild(p.firstChild); }
