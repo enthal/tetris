@@ -12,13 +12,6 @@ const makeView = (gameElem) => {
   const deadCellsGroupElem = gameElem.querySelector('g#dead-cells');
   const svgns = 'http://www.w3.org/2000/svg';
 
-  gameElem.addEventListener('transitionend', (event) => {
-    if (event.target.classList.contains('destroying')) {
-      event.target.parentElement.removeChild(event.target);
-    }
-    // TODO: this will not fire for the cells just appended to deadCellsGroupElem; maybe on next tick it would?  WTF?
-  });
-
   const generateCellSvgRect = (parentElem, [x,y], shapeI) => {
     const rect = document.createElementNS(svgns,'rect');
     rect.setAttribute('width',1);
@@ -46,36 +39,28 @@ const makeView = (gameElem) => {
       },
       destroy: () => {  // TODO
         cellElem.classList.add('destroying');
-        // cellElem.setAttribute('transform', `rotate(45)`)
-        // cellElem.setAttribute('transform-origin', `90% 90%`)
-        // cellElem.setAttribute('transform', `rotate(45 ${xy[0]+0.5} ${xy[1]+0.5})`)
-        let animateTransform;
-        // animateTransform = document.createElementNS(svgns,'animateTransform');
-        // animateTransform.setAttribute('attributeName','transform');
-        // animateTransform.setAttribute('type','rotate');
-        // animateTransform.setAttribute('from',`0  ${xy[0]+0.5} ${xy[1]+0.5}`);
-        // animateTransform.setAttribute('to',  `360 ${xy[0]+0.5} ${xy[1]+0.5}`);
-        // animateTransform.setAttribute('dur',`${_.random(0.5,3)}s`);
-        // animateTransform.setAttribute('repeatCount','indefinite');
-        // cellElem.appendChild(animateTransform);
-        animateTransform = document.createElementNS(svgns,'animateTransform');
-        animateTransform.setAttribute('attributeName','transform');
-        animateTransform.setAttribute('type','scale');
-        animateTransform.setAttribute('from',`0`);
-        animateTransform.setAttribute('to',  `1.3`);
-        animateTransform.setAttribute('dur',`${_.random(3,5.5)}s`);
-        animateTransform.setAttribute('repeatCount','indefinite');
-        cellElem.appendChild(animateTransform);
+        let start_ms;
+        const factor = {
+          x: _.random(-2.1,2.1),
+          y: _.random(-1.3,2.1),
+          r: _.random(-1.1,1.1),
+        };
+        const duration_s = 2.0;
+        const animate = (timestamp_ms) => {
+          if (!start_ms) start_ms = timestamp_ms
+          const elapsed_s = (timestamp_ms - start_ms)/1000;
+          cellElem.style.opacity = 1 - elapsed_s/duration_s
+          cellElem.setAttribute('transform', `
+            translate(${factor.x * elapsed_s} ${factor.y * elapsed_s})
+            rotate(${factor.x * elapsed_s * 360} ${xy[0]+0.5} ${xy[1]+0.5})
+            `);
 
-        // <animateTransform attributeName="transform"
-        //           attributeType="XML"
-        //           type="rotate"
-        //           from="0 60 70"
-        //           to="360 60 70"
-        //           dur="10s"
-        //           repeatCount="indefinite"/>
-
+          if (elapsed_s < duration_s) window.requestAnimationFrame(animate);
+          else cellElem.parentElement.removeChild(cellElem);
+        }
+        window.requestAnimationFrame(animate);
       },
+      // NOTE: I'm sad the animations are in JS, but neither CSS animations on SVG transform, nor SVG animateTransform work right
     };
   };
   deadCells.push(..._.flatten(_.map(_.range(15,20), (y)=>_.times(10, (x)=>makeCell(deadCellsGroupElem, [x,y], _.random(6))))));
