@@ -35,20 +35,18 @@ const makeView = (gameElem) => {
       getXY: () => xy,
       stepDown: () => {
         if (!downAnimation) {
-          log ("stepDown",xy);
           downAnimation = true;
-          const startY = xy[1];
-          const duration_s = 1.0;
+          const startY = xy[1]
           let start_ms;
           const animate = (timestamp_ms) => {
             if (!start_ms) start_ms = timestamp_ms;
             const elapsed_s = (timestamp_ms - start_ms)/1000;
-            cellElem.setAttribute('y', startY + (xy[1]-startY)*(elapsed_s/duration_s));
-            if (elapsed_s < duration_s) window.requestAnimationFrame(animate);
+            const y = startY + Math.pow(1+elapsed_s, 3.5) - 1;
+            cellElem.setAttribute('y', y);
+            if (y < xy[1]) window.requestAnimationFrame(animate);
             else {
               cellElem.setAttribute('y', xy[1]);
               downAnimation = false;
-              log('done')
             }
           };
           window.requestAnimationFrame(animate);
